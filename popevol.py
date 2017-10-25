@@ -4,7 +4,7 @@ from scipy.interpolate import splrep,splev
 from drymergers import shmrs
 from drymergers import galpop_recipes as recipes
 from scipy.integrate import quad
-from drymergers import do_measurements
+from drymergers import fitting_tools
 
 
 A = 0.0104
@@ -157,7 +157,7 @@ class population:
                     self.gammap[j, i] = self.gammap[j, i+1] - dgammap*dz
 
             # now fits for the vdisp - mstar relation and imf - mstar relation
-            fit_vdisp_coeff = do_measurements.fit_mchab_dep(np.log10(self.mstar_chab[:, i]), np.log10(self.veldisp[:, i]), \
+            fit_vdisp_coeff = fitting_tools.fit_mchab_dep(np.log10(self.mstar_chab[:, i]), np.log10(self.veldisp[:, i]), \
                                                  guess=vdisp_coeff)[0]
 
             vdisp_coeff = fit_vdisp_coeff
@@ -165,13 +165,13 @@ class population:
             self.aimf[:, i] = self.mstar_true[:, i] / self.mstar_salp[:, i]
 
             if imf_recipe == 'mstar':
-                imf_coeff = do_measurements.fit_mstar_only(np.log10(self.mstar_salp[:, i]), np.log10(self.aimf[:, i]), \
+                imf_coeff = fitting_tools.fit_mstar_only(np.log10(self.mstar_salp[:, i]), np.log10(self.aimf[:, i]), \
                                                    guess=imf_coeff)[0]
             elif imf_recipe == 'vdisp':
-                 imf_coeff = do_measurements.fit_sigma_only(np.log10(self.veldisp[:, i]), np.log10(self.aimf[:, i]), \
+                 imf_coeff = fitting_tools.fit_sigma_only(np.log10(self.veldisp[:, i]), np.log10(self.aimf[:, i]), \
                                                    guess=imf_coeff)[0]
             elif imf_recipe == 'mstar-vdisp':
-                  imf_coeff = do_measurements.fit_mstar_sigma_fixed_z(np.log10(self.mstar_salp[:, i]), np.log10(self.veldisp[:, i]), np.log10(self.aimf[:, i]), \
+                  imf_coeff = fitting_tools.fit_mstar_sigma_fixed_z(np.log10(self.mstar_salp[:, i]), np.log10(self.veldisp[:, i]), np.log10(self.aimf[:, i]), \
                                                    guess=imf_coeff)[0]
 
             self.imf_coeff[i, :] = imf_coeff
