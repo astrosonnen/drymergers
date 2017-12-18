@@ -87,7 +87,7 @@ class population:
         self.imf_coeff[-1] = imf_coeff
 
         for i in range(self.nobj):
-            self.mhalo[i, :] = 1e12*((self.mhalo_0[i]/1e12)**(1.-bpar) - (1-bpar)/H0*Mdot/1e12*izfunc(self.z, self.z_0))**(1./(1.-bpar))
+            self.mhalo[i, :] = 1e12*((self.mhalo_0[i]/1e12)**(1.-bpar) - (1-bpar)/H0*Mdot/1e12*izfunc(self.z, self.z_0))**(1./(1.-bpar)) ### C: halo mass evolution in z 
             if imf_recipe == 'mstar':
                 self.aimf[i, -1] = 10.**recipes.limf_func_mstar(np.log10(self.mstar_salp_0[i]), imf_coeff)
             elif imf_recipe == 'vdisp':
@@ -100,24 +100,24 @@ class population:
         self.xieff = 0.*self.mhalo
         self.rfuncatxieff = 0.*self.mhalo
 
-        for i in range(nz-2, -1, -1):
+        for i in range(nz-2, -1, -1): # loop in z, from high to low
 
-            lmhalo_grid = shmrs.mhfunc(lmstar_grid, self.z[i])
-            lmhalo_spline = splrep(lmhalo_grid, lmstar_grid)
+            lmhalo_grid = shmrs.mhfunc(lmstar_grid, self.z[i]) # A: evaluates Mh(M*, z) on a grid
+            lmhalo_spline = splrep(lmhalo_grid, lmstar_grid) # A: creates spline interpolation of M*(Mh), for faster evaluation
 
-            def rfunc(mhalo):
+            def rfunc(mhalo): # stellar to halo mass ratio, calculated by spline interpolation
                 return 10.**(splev(np.log10(mhalo), lmhalo_spline) - np.log10(mhalo))
 
-            for j in range(self.nobj):
+            for j in range(self.nobj): # loop over individual galaxies
                 imz = quad(
                     lambda xi: rfunc(xi*self.mhalo[j, i])*xi**(beta+1.)*np.exp((xi/xitilde)**gamma), ximin, 1.)[0]
                 imxiz = quad(
                     lambda xi: rfunc(xi*self.mhalo[j, i])*xi**(beta+2.)*np.exp((xi/xitilde)**gamma), ximin, 1.)[0]
 
-                self.xieff[j, i] = imxiz/imz
+                self.xieff[j, i] = imxiz/imz # effective merger halo mass ratio
                 self.rfuncatxieff[j, i] = rfunc(self.xieff[j, i]*self.mhalo[j, i])
 
-                dmstar_chab_dz = -A*imz*self.mhalo[j, i]*(self.mhalo[j, i]/1e12)**alpha*(1.+self.z[i])**etap
+                dmstar_chab_dz = -A*imz*self.mhalo[j, i]*(self.mhalo[j, i]/1e12)**alpha*(1.+self.z[i])**etap # change in mchab due to mergers in this timestep (Nipoti 2012)
 
                 def integrand(xi):
                     lmstar_here = np.log10(xi*self.mhalo[j, i]*rfunc(xi*self.mhalo[j, i]))
@@ -128,11 +128,11 @@ class population:
 
                 imtz = quad(integrand, ximin, 1.)[0]
 
-                dmstar_true_dz = -A*imtz*self.mhalo[j,i]*(self.mhalo[j, i]/1e12)**alpha*(1.+self.z[i])**etap
+                dmstar_true_dz = -A*imtz*self.mhalo[j,i]*(self.mhalo[j, i]/1e12)**alpha*(1.+self.z[i])**etap  
 
                 def epsilon(xi):
                     mstar_sat = rfunc(self.mhalo[j, i]*xi)*xi*self.mhalo[j, i]
-                    vdisp_sat = 10.**(self.vdisp_coeff[i+1, 0] + self.vdisp_coeff[i+1, 1]*(np.log10(mstar_sat) - 11.))
+                    vdisp_sat = 10.**(self.vdisp_coeff[i+1, 0] + self.vdisp_coeff[i+1, 1]*(np.log10(mstar_sat) - 11.)) # satellite velocity dispersion is given by M*-sigma relation at previous timestep
                     return (vdisp_sat/self.veldisp[j, i+1])**2
 
                 def epsilon_orb(xi):
@@ -161,7 +161,7 @@ class population:
                                                  guess=vdisp_coeff)[0]
 
             vdisp_coeff = fit_vdisp_coeff
-            self.vdisp_coeff[i, :] = vdisp_coeff
+            self.vdisp_coeff[i, :] = vdisp_coeff # updates M*-sigma relation
             self.aimf[:, i] = self.mstar_true[:, i] / self.mstar_salp[:, i]
 
             if imf_recipe == 'mstar':
