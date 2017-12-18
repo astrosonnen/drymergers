@@ -136,7 +136,7 @@ class population:
                     return (vdisp_sat/self.veldisp[j, i+1])**2
 
                 def epsilon_orb(xi):
-                    return xi * v200sigma_rat2 * (vorbv200_rat**2/(1. + xi) - 1.)
+                    return xi * v200sigma_rat2 * (vorbv200_rat**2/(1. + xi) - 1.) ### C: epsilon_orb,corr
 
                 isigma2 = quad(lambda xi: ((1.+xi*epsilon(xi) - epsilon_orb(xi))/(1.+xi) - 1)*xi**beta*np.exp((xi/xitilde)**gamma), \
                                ximin, 1.)[0]

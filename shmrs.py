@@ -37,9 +37,10 @@ def generate_halos(N, lmhmin=12., lmhmax=14., z=0.):
     :return: numpy.ndarray of halo masses
     """
     lmhs = np.linspace(lmhmin, lmhmax, 101)
-    dist_spline = splrep(lmhs, mhalo_dist(lmhs, z))
+    dist_spline = splrep(lmhs, mhalo_dist(lmhs, z)) ### C: splrep(...) - Find the B-spline representation of 1-D curve.
+
     def intfunc(lmh):
-        return splint(lmhmin, lmh, dist_spline)
+        return splint(lmhmin, lmh, dist_spline) ### C: splint(...) - Evaluate the definite integral of a B-spline between two given points.
 
     norm = intfunc(lmhmax)
 
@@ -47,13 +48,14 @@ def generate_halos(N, lmhmin=12., lmhmax=14., z=0.):
     lmhalos = 0.*x
 
     for i in range(0, N):
-        lmhalos[i] = brentq(lambda lmh: intfunc(lmh) - x[i], lmhmin, lmhmax)
+        lmhalos[i] = brentq(lambda lmh: intfunc(lmh) - x[i], lmhmin, lmhmax) ### C: brentq(...) - Find a root of a function in a bracketing interval using Brent's method.
+
 
     return lmhalos
 
 
 def generate_mstar(lmhalos, z=0., scat=0.1):
-    return mstarfunc(lmhalos, z) + np.random.normal(0., scat, len(np.atleast_1d(lmhalos)))
+    return mstarfunc(lmhalos, z) + np.random.normal(0., scat, len(np.atleast_1d(lmhalos))) ### C: np.atleast_1d(***) - Convert inputs to arrays with at least one dimension.
 
 
 def mhfunc(lmstar, z):
@@ -142,8 +144,8 @@ def mstarfunc(lmhalo, z=0.):
     :return:
     """
     lmhalos = mhfunc(lmstar_grid, z)
-    lmstar_spline = splrep(lmhalos, lmstar_grid)
-    return splev(lmhalo, lmstar_spline)
+    lmstar_spline = splrep(lmhalos, lmstar_grid) ### C: splerp(...) - Find the B-spline representation of 1-D curve.
+    return splev(lmhalo, lmstar_spline) ### C: splerv(...) - Evaluate a B-spline or its derivatives.
     
 
 def rstarh(lmhalo, z):
