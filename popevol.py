@@ -42,7 +42,7 @@ class population:
         self.veldisp = None
         self.xieff = None
         self.rfuncatxieff = None
-        self.dlnsigma2_dz = None
+        self.dlnsigma_dz = None
         self.vdisp_coeff = None
 
 
@@ -55,7 +55,7 @@ class population:
         self.mhalo = np.zeros((self.nobj, nz), dtype='float')
         self.mstar_chab = 0.*self.mhalo
         self.veldisp = 0.*self.mhalo
-        self.dlnsigma2_dz = 0.*self.mhalo
+        self.dlnsigma_dz = 0.*self.mhalo
 
         self.mstar_chab[:, -1] = self.mstar_chab_0
         self.veldisp[:, -1] = self.veldisp_0
@@ -63,7 +63,7 @@ class population:
         self.vdisp_coeff = np.zeros((nz, 2), dtype='float')
         self.vdisp_coeff[-1] = vdisp_coeff
 
-        integral = xitilde*quad(lambda x: x**(beta+1./3.)*np.exp(x**gamma), ximin/xitilde, 1./xitilde)[0]
+        int_xi_min = xitilde*quad(lambda x: x**(beta+1./3.)*np.exp(x**gamma), ximin/xitilde, 1./xitilde)[0] ### C: Formula (11) from Nipoti et al. 2012
         
         for i in range(self.nobj):
             self.mhalo[i, :] = 1e12*((self.mhalo_0[i]/1e12)**(1.-bpar) - (1-bpar)/H0*Mdot/1e12*izfunc(self.z, self.z_0))**(1./(1.-bpar)) ### C: halo mass evolution in z 
@@ -77,15 +77,15 @@ class population:
                 return 10.**(splev(np.log10(mhalo), lmstar_spline) - np.log10(mhalo))
 
             lmchab_here = splev(np.log10(self.mhalo[:, i]), lmstar_spline)
-            self.mstar_chab = 10.**lmchab_here
+            self.mstar_chab[:, i] = 10.**lmchab_here
             
             
             
             for j in range(self.nobj): # loop over individual galaxies
 
-                self.dlnsigma_dz[j, i] = -A*integral*(self.mhalo[j, i]/1e12)**alpha*(1.+self.z[i])**etap
+                self.dlnsigma_dz[j, i] = -A*int_xi_min*(self.mhalo[j, i]/1e12)**alpha*(1.+self.z[i])**etap
 
-                self.veldisp[j, i] = self.veldisp[j, i+1]*(1. - 0.5*self.dlnsigma2_dz[j, i]*dz)
+                self.veldisp[j, i] = self.veldisp[j, i+1]*(1. - 0.5*self.dlnsigma_dz[j, i]*dz)
                 
             # now fits for the vdisp - mstar relation and imf - mstar relation
             fit_vdisp_coeff = fitting_tools.fit_mchab_dep(np.log10(self.mstar_chab[:, i]), np.log10(self.veldisp[:, i]), \
