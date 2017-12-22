@@ -4,8 +4,10 @@ import numpy as np
 from matplotlib import rc
 rc('text', usetex=True)
 
+Ngal = 100 #sample size
+outname = 'pop_model_'+str(Ngal)+'.dat' ### C: introduction of 'str(Ngal)'
 
-f = open('pop_model.dat', 'r')
+f = open(outname, 'r')
 pop = pickle.load(f)
 f.close()
 
@@ -19,17 +21,17 @@ ms2 = []
 vd2 = []
 
 for i in range(nobj):
-    ms0.append(np.log10(pop.mstar_salp[i, 20]))
+    ms0.append(np.log10(pop.mstar_chab[i, 20]))
     vd0.append(np.log10(pop.veldisp[i, 20]))
-    ms2.append(np.log10(pop.mstar_salp[i, -1]))
+    ms2.append(np.log10(pop.mstar_chab[i, -1]))
     vd2.append(np.log10(pop.veldisp[i, -1]))
-    #pylab.plot(np.log10(pop.mstar_salp[i, :]), np.log10(pop.veldisp[i, :]), color='gray', alpha=0.5)
+    #pylab.plot(np.log10(pop.mstar_salp[i, 20:]), np.log10(pop.veldisp[i, 20:]), color='gray', alpha=0.5)
 
 pylab.xlim(10.5,12.5)
 
 xs = np.linspace(10.5, 12.5)
 
-auger_line = 2.34 + 0.18*(xs - 11.25)
+auger_line = 2.34 + 0.18*(xs - 11.)
 
 mas_best = auger_line + 0.20*(np.log10(3.) - np.log10(1.2))
 mas_up = auger_line + 0.27*(np.log10(3.) - np.log10(1.2))
@@ -43,12 +45,11 @@ pylab.scatter(ms2, vd2, color='b', label='$z=2$', marker='s', s=30)
 pylab.scatter(ms0, vd0, color='r', label='$z=0.2$', s=30)
 
 for i in range(narrow):
-    pylab.plot(np.log10(pop.mstar_salp[i, 20:]), np.log10(pop.veldisp[i, 20:]), color='k')
+    pylab.plot(np.log10(pop.mstar_chab[i, 20:]), np.log10(pop.veldisp[i, 20:]), color='k')
 
 pylab.legend(scatterpoints=1, loc='upper left')
 
 pylab.xlabel('$\log{M_*^{\mathrm{Salp}}}$', fontsize=16)
 pylab.ylabel('$\log{\sigma}$', fontsize=16)
-pylab.savefig('mstar-vdisp_evolution.png')
+pylab.savefig('mstar-vdisp_evolution_'+str(nobj)+'.png')
 pylab.show()
-

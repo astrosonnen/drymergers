@@ -30,7 +30,9 @@ aimf_z2_sample = 0.*lmstar_sample ### C:  Unused!!!
 pop = popevol.population(z_0=z_0, nobj=Ngal, mstar_chab_0=10.**lmstar_sample, mhalo_0=10.**lmhalo_sample, \
                          veldisp_0=vdisp_sample)
 #%%
-pop.evolve(z_low=0., imf_recipe='mstar-vdisp', imf_coeff=imf_coeff, vdisp_coeff=vdisp_coeff, ximin=ximin, v200sigma_rat2=0.6, vorbv200_rat=0.75)
+#pop.evolve(z_low=0., imf_recipe='mstar-vdisp', imf_coeff=imf_coeff, vdisp_coeff=vdisp_coeff, ximin=ximin, v200sigma_rat2=0.6, vorbv200_rat=0.75)
+pop.evolve(z_low=0., vdisp_coeff=vdisp_coeff, ximin=ximin, v200sigma_rat2=0.6, vorbv200_rat=0.75)
+
 #%%
 f = open(outname, 'w')
 
