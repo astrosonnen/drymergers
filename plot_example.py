@@ -4,7 +4,7 @@ import numpy as np
 from matplotlib import rc
 rc('text', usetex=True)
 
-Ngal = 100 #sample size
+Ngal = 10 #sample size
 outname = 'pop_model_'+str(Ngal)+'.dat' ### C: introduction of 'str(Ngal)'
 
 f = open(outname, 'r')
