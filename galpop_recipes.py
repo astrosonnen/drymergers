@@ -149,11 +149,11 @@ def satellite_imf(lmstar, lvdisp=None, z=2., recipe='mstar-vdisp', coeff=(0.2, 0
         return 10.**(limf_func_mhalo(lmhalo, coeff))
 
     elif recipe == 'mstar-flat':
-	lm = np.atleast_1d(lmstar)
-	out = 0.*lm
-	out[lm>10.5] = 10.**(limf_func_mstar(lmstar, coeff))
-	out[lm<=10.5] = 10.**(limf_func_mstar(10.5, coeff))
-	return out
+        lm = np.atleast_1d(lmstar)
+        out = 0.*lm
+        out[lm>10.5] = 10.**(limf_func_mstar(lmstar, coeff))
+        out[lm<=10.5] = 10.**(limf_func_mstar(10.5, coeff))
+        return out
 
 
     else:
