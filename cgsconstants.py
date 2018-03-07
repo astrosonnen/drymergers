@@ -70,3 +70,4 @@ def Planckf(x,T,var='lambda'):
 
 def Ledd(M):
     return 4*pi*G*M*m_p*c/sigma_Th
+
